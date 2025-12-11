@@ -1818,6 +1818,36 @@ def main():
     with open(OUTPUT_DIR / 'training_report.txt', 'w') as f:
         f.write(report_text)
 
+    # --- 8. 排序肽序列并输出CSV ---
+    print("\n>>> [Extra] Sorting peptides by priority and saving to CSV...")
+    try:
+        # 选择最佳模型：优先HybridPeptideNet，否则使用排名最高的模型
+        if 'HybridPeptideNet' in trained_models:
+            best_model = trained_models['HybridPeptideNet']
+            print("   Using HybridPeptideNet for priority scoring.")
+        else:
+            top_model_name = general_ranking['Model'].iloc[0]
+            best_model = trained_models[top_model_name]
+            print(f"   HybridPeptideNet not available. Using top model: {top_model_name} for priority scoring.")
+
+        # 使用scaler缩放所有X
+        X_all_scaled = scaler.transform(X)
+
+        # 预测概率，高亲和力类（index 1）的概率作为优先级分数
+        y_prob_all = best_model.predict_proba(X_all_scaled)
+        df['priority_score'] = y_prob_all[:, 1]  # 高亲和力概率
+
+        # 按优先级分数降序排序
+        df_sorted = df.sort_values(by='priority_score', ascending=False).reset_index(drop=True)
+
+        # 输出到CSV
+        priority_csv_path = OUTPUT_DIR / 'peptides_priority.csv'
+        df_sorted.to_csv(priority_csv_path, index=False)
+        print(f"   Peptides sorted by priority and saved to: {priority_csv_path}")
+
+    except Exception as e:
+        print(f"   Error sorting peptides: {e}")
+
     print(f"\n>>> All completed! Results saved in: {OUTPUT_DIR.resolve()}")
 
     return trained_models, results_df, general_ranking, best_pattern_ranking
