@@ -6,7 +6,7 @@ from pathlib import Path
 import warnings
 
 # --- 配置 ---
-CANDIDATE_FILE = Path("outputs/chapter3_ml/predicted_candidates.csv")
+CANDIDATE_FILE = Path("outputs/chapter3_ml/peptides_priority.csv")
 MASTER_FILE = Path("sequence_properties.csv")
 OUTPUT_DIR = Path("outputs/chapter4_sar")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
