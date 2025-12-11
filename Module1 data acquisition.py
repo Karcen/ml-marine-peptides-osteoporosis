@@ -1,8 +1,3 @@
-"""
-Module 1: Data Acquisition
-Downloads marine peptide data from NCBI Protein Database and CMNPD
-"""
-
 import os
 import time
 import requests
@@ -15,14 +10,35 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# Import configuration
-import sys
+# Define constants directly (no external config)
+NCBI_SEARCH_TERMS = [
+    "marine peptide[All Fields]",
+    "marine cyclic peptide[All Fields]",
+    "marine linear peptide[All Fields]",
+    "antimicrobial peptide marine[All Fields]",
+    "marine natural peptide[All Fields]"
+]  # Example search terms; adjust as needed
 
-sys.path.insert(0, str(Path(__file__).parent))
-from config import (
-    NCBI_SEARCH_TERMS, MIN_SEQ_LENGTH, MAX_SEQ_LENGTH,
-    CMNPD_URL, DATA_DIRS, OUTPUT_DIRS
-)
+MIN_SEQ_LENGTH = 5
+MAX_SEQ_LENGTH = 100
+
+CMNPD_URL = "https://www.cmnpd.org/download/cmnpd_latest.tsv"  # Placeholder; replace with actual URL if available
+
+DATA_DIRS = {
+    'ncbi': Path('data/ncbi'),
+    'cmnpd': Path('data/cmnpd'),
+    'pdb': Path('data/pdb')
+}
+
+OUTPUT_DIRS = {
+    'chapter1_database': Path('outputs/chapter1_database')
+}
+
+DOCKING_TARGETS = {
+    # Example docking targets; add actual PDB IDs as needed
+    'example_target1': {'pdb_id': '1ABC'},
+    'example_target2': {'pdb_id': '2DEF'}
+}  # Placeholder; adjust based on your needs
 
 
 class NCBIDataDownloader:
@@ -257,8 +273,6 @@ class PDBDownloader:
 
     def download_docking_targets(self):
         """Download all docking target structures"""
-        from config import DOCKING_TARGETS
-
         results = {}
         for target_name, target_info in DOCKING_TARGETS.items():
             pdb_id = target_info["pdb_id"]
